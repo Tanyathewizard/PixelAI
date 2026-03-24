@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelForge AI | Image Enhancer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="/static/favicon.ico" sizes="any">
+
+    <style>
+         :root {
+            --bg: #090910;
+            --surface: #12121a;
+            --surface-2: #181824;
+            --border: #29293a;
+            --accent: #7c5cfc;
+            --accent-2: #5b8def;
+            --cyan: #22d3ee;
+            --text: #eef0f8;
+            --muted: #9ca3b5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --radius: 18px;
+            --shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse 70% 55% at 50% -10%, rgba(124, 92, 252, 0.18) 0%, transparent 70%), radial-gradient(ellipse 35% 28% at 85% 80%, rgba(34, 211, 238, 0.08) 0%, transparent 60%);
+        }
+        
+        .wrap {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(9, 9, 16, 0.75);
+            backdrop-filter: blur(14px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 8px 20px rgba(124, 92, 252, 0.3);
+            font-size: 0.9rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 26px;
+        }
+        
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.92rem;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 78px 20px 44px;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(124, 92, 252, 0.12);
+            border: 1px solid rgba(124, 92, 252, 0.28);
+            color: #b8a9ff;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 24px;
+        }
+        
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        
+        h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.4rem, 6vw, 4.3rem);
+            line-height: 1.05;
+            margin-bottom: 16px;
+            font-weight: 800;
+        }
+        
+        h1 em {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            max-width: 650px;
+            margin: 0 auto 42px;
+            color: var(--muted);
+            font-size: 1.02rem;
+            line-height: 1.7;
+        }
+        
+        .card {
+            background: rgba(18, 18, 26, 0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 760px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+            text-align: left;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+        
+        .card-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .card-sub {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+        
+        .scale-toggle {
+            display: flex;
+            gap: 6px;
+            padding: 4px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+        
+        .scale-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 9px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+        
+        .scale-btn small {
+            font-size: 0.68rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        .scale-btn.active {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 0 18px rgba(124, 92, 252, 0.35);
+        }
+        
+        .batch-toggle {
+            display: flex;
+            gap: 6px;
+            padding: 4px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-left: 16px;
+        }
+        
+        .batch-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+        
+        .batch-btn.active {
+            color: #fff;
+            background: var(--success);
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        
+        .control-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+        }
+        
+        .control-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .select,
+        .textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .select {
+            padding: 12px;
+            font-size: 0.92rem;
+            outline: none;
+        }
+        
+        .textarea {
+            min-height: 110px;
+            padding: 12px 14px;
+            resize: vertical;
+            line-height: 1.5;
+            font-size: 0.92rem;
+            outline: none;
+        }
+        
+        .hint {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 0.76rem;
+            line-height: 1.4;
+        }
+        
+        .prompt-chip-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0 18px;
+        }
+        
+        .prompt-chip {
+            border: 1px solid rgba(124, 92, 252, 0.25);
+            background: rgba(124, 92, 252, 0.08);
+            color: #cfc6ff;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.77rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        
+        .prompt-chip:hover {
+            background: rgba(124, 92, 252, 0.14);
+            border-color: rgba(124, 92, 252, 0.4);
+        }
+        
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: 14px;
+            padding: 46px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            background: rgba(255, 255, 255, 0.01);
+        }
+        
+        .dropzone:hover,
+        .dropzone.drag-over {
+            border-color: var(--accent);
+            background: rgba(124, 92, 252, 0.04);
+        }
+        
+        .upload-icon {
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 16px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(124, 92, 252, 0.18), rgba(91, 141, 239, 0.18));
+        }
+        
+        .drop-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        
+        .drop-sub {
+            color: var(--muted);
+            font-size: 0.84rem;
+            line-height: 1.5;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 16px;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        
+        .file-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: var(--surface-2);
+            flex-shrink: 0;
+        }
+        
+        .file-name {
+            font-size: 0.92rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 260px;
+        }
+        
+        .file-size {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        
+        .enhance-btn,
+        .btn {
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        
+        .enhance-btn {
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent), #5b3fd4);
+            color: #fff;
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 24px rgba(124, 92, 252, 0.28);
+        }
+        
+        .enhance-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+        
+        .files-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        
+        .multi-file-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .multi-file-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: var(--surface-2);
+        }
+        
+        .remove-file {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-left: auto;
+        }
+        
+        .progress-ring-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 22px;
+            text-align: center;
+        }
+        
+        .ring-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .ring-bg {
+            fill: none;
+            stroke: var(--surface-2);
+            stroke-width: 8;
+        }
+        
+        .ring-progress {
+            fill: none;
+            stroke-width: 8;
+            stroke: url(#ringGrad);
+            stroke-linecap: round;
+            stroke-dasharray: 339;
+            stroke-dashoffset: 339;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.4s ease;
+        }
+        
+        .ring-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .progress-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .progress-sub {
+            color: var(--muted);
+            font-size: 0.86rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .progress-bar-wrap {
+            width: 100%;
+            height: 5px;
+            background: var(--border);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent), var(--cyan));
+            transition: width 0.3s ease;
+        }
+        
+        .batch-progress-title {
+            font-size: 1.1rem;
+            margin-top: 18px;
+            margin-bottom: 12px;
+            font-family: 'Sora', sans-serif;
+        }
+        
+        .batch-files-progress {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 16px;
+            width: 100%;
+        }
+        
+        .batch-file-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+        }
+        
+        .batch-file-name {
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+        
+        .batch-file-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .batch-file-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        .result-img-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .img-panel {
+            position: relative;
+        }
+        
+        .img-label {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+        
+        .img-panel img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: block;
+        }
+        
+        .result-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .meta-chip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 11px 14px;
+            min-width: 0;
+        }
+        
+        .meta-label {
+            color: var(--muted);
+            font-size: 0.78rem;
+            margin-bottom: 4px;
+        }
+        
+        .meta-val {
+            font-weight: 700;
+            font-size: 0.94rem;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+        
+        .metrics-chip {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+        
+        .metrics-label {
+            color: var(--success);
+        }
+        
+        .meta-stack {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .prompt-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+        }
+        
+        .prompt-card-title {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        
+        .prompt-card-text {
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+        
+        .preset-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #ffd493;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #5b3fd4);
+            box-shadow: 0 6px 22px rgba(124, 92, 252, 0.28);
+        }
+        
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .recent {
+            max-width: 760px;
+            margin: 40px auto 60px;
+            padding: 0 20px;
+        }
+        
+        .recent-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Sora', sans-serif;
+            color: var(--muted);
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .recent-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .recent-item {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+        }
+        
+        .recent-item::after {
+            content: ">";
+            position: absolute;
+            right: 14px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        
+        .recent-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background: var(--surface-2);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .recent-name {
+            font-size: 0.88rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 160px;
+        }
+        
+        .scale-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(124, 92, 252, 0.15);
+            color: #b8a9ff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            margin-right: 6px;
+        }
+        
+        .preset-mini {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(245, 158, 11, 0.12);
+            color: #ffd493;
+            font-size: 0.68rem;
+            font-weight: 800;
+            margin-right: 6px;
+        }
+        
+        .recent-time {
+            color: var(--muted);
+            font-size: 0.75rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid var(--surface);
+        }
+        
+        @media (max-width: 900px) {
+            .control-grid,
+            .result-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 720px) {
+            nav {
+                padding: 16px 18px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .hero {
+                padding: 54px 16px 34px;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card-header {
+                flex-direction: column;
+            }
+            .result-img-row,
+            .btn-row,
+            .recent-grid {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+            .img-panel img {
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <nav>
+            <div class="logo">
+                <div class="logo-icon">PF</div>
+                <span>PixelForge AI</span>
+            </div>
+
+            <div class="nav-links">
+                <a href="#top">Enhance</a>
+                <a href="#recent">Preview</a>
+                <a href="/docs" target="_blank">API</a>
+            </div>
+        </nav>
+
+        <div class="hero" id="top">
+            <div class="badge">
+                <span class="badge-dot"></span> AI image enhancement workflow
+            </div>
+
+            <h1>Sharper visuals,<br><em>cleaner results.</em></h1>
+
+            <p class="subtitle">
+                Upload a low-resolution image and generate a cleaner high-resolution version with improved clarity, detail, and scale.
+            </p>
+
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Enhance image</div>
+                        <div class="card-sub">Upload a JPG, PNG, or WEBP file, choose the output scale, and guide the enhancement with a prompt.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                        <div class="scale-toggle">
+                            <button class="scale-btn" id="btn2x" onclick="setScale(2)">
+                                2x<br><small>Upscale</small>
+                            </button>
+                            <button class="scale-btn active" id="btn4x" onclick="setScale(4)">
+                                4x<br><small>Upscale</small>
+                            </button>
+                        </div>
+
+                        <div class="batch-toggle">
+                            <button class="batch-btn" id="btnSingle" onclick="setBatchMode(false)">Single</button>
+                            <button class="batch-btn active" id="btnBatch" onclick="setBatchMode(true)">Batch (up to 10)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="viewUpload">
+                    <div class="control-grid">
+                        <div class="control-box">
+                            <label class="control-label" for="stylePreset">Style preset</label>
+                            <select id="stylePreset" class="select">
+                                <option value="auto">Auto</option>
+                                <option value="product">Product</option>
+                                <option value="portrait">Portrait</option>
+                                <option value="document">Document</option>
+                                <option value="render">Render</option>
+                            </select>
+                            <div class="hint">Use a preset for faster, more targeted enhancement.</div>
+                        </div>
+
+                        <div class="control-box">
+                            <label class="control-label" for="promptInput">Prompt</label>
+                            <textarea id="promptInput" class="textarea" placeholder="Example: clean product render with high detail and sharper edges"></textarea>
+                            <div class="hint">Describe how you want the result to look.</div>
+                        </div>
+                    </div>
+
+                    <div class="prompt-chip-wrap" id="promptChips">
+                        <button class="prompt-chip" onclick="applyPromptChip('make it sharper and cleaner')">Sharper & cleaner</button>
+                        <button class="prompt-chip" onclick="applyPromptChip('clean product render with high detail')">Product render</button>
+                        <button class="prompt-chip" onclick="applyPromptChip('remove noise and improve clarity')">Noise removal</button>
+                        <button class="prompt-chip" onclick="applyPromptChip('soft studio look but keep details')">Soft studio</button>
+                        <button class="prompt-chip" onclick="applyPromptChip('natural realistic enhancement')">Natural look</button>
+                        <button class="prompt-chip" onclick="applyPromptChip('e-commerce ready product image')">E-commerce</button>
+                    </div>
+
+                    <div class="dropzone" id="dropzone" onclick="openFilePicker()" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+                        <div class="upload-icon">UP</div>
+                        <div class="drop-title">Click to upload or drag an image here</div>
+                        <div class="drop-sub">Supported formats: JPG, PNG, WEBP • Max file size: 20 MB</div>
+                    </div>
+
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp" onchange="onFileSelect(event)">
+                    <input type="file" id="batchFileInput" multiple accept=".jpg,.jpeg,.png,.webp" onchange="onBatchFileSelect(event)" style="display: none;">
+
+                    <div class="file-row hidden" id="fileRow">
+                        <div class="file-info">
+                            <img class="file-thumb" id="fileThumb" src="" alt="">
+                            <div>
+                                <div class="file-name" id="fileName">-</div>
+                                <div class="file-size" id="fileSize">-</div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-ghost" style="flex:0;padding:8px 14px;font-size:.8rem" onclick="resetUpload()">
+                            Remove
+                        </button>
+                    </div>
+
+                    <div id="filesList" class="files-list hidden"></div>
+
+                    <button class="enhance-btn" id="enhanceBtn" onclick="startEnhance()" disabled>
+                        Enhance Image
+                    </button>
+                </div>
+
+                <div id="viewProcessing" class="hidden">
+                    <div class="progress-ring-wrap">
+                        <div class="ring-container">
+                            <svg width="120" height="120" viewBox="0 0 120 120">
+                                <defs>
+                                    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#7c5cfc"></stop>
+                                        <stop offset="100%" stop-color="#22d3ee"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
+                                <circle class="ring-progress" id="ringProgress" cx="60" cy="60" r="54"></circle>
+                            </svg>
+                            <div class="ring-label" id="ringLabel">0%</div>
+                        </div>
+
+                        <div class="progress-title" id="progressTitle">Processing image</div>
+                        <div class="progress-sub" id="progressSub">Preparing enhancement workflow...</div>
+
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" id="progressBarFill"></div>
+                        </div>
+
+                        <div id="batchProgress" class="hidden" style="width:100%;">
+                            <div class="batch-progress-title">Batch Progress</div>
+                            <div class="batch-files-progress" id="batchFilesProgress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="viewResult" class="hidden">
+                    <div class="result-img-row">
+                        <div class="img-panel">
+                            <div class="img-label">Original</div>
+                            <img id="originalPreview" src="" alt="Original image">
+                        </div>
+
+                        <div class="img-panel">
+                            <div class="img-label" id="resultLabel" style="color:#b8a9ff">Enhanced</div>
+                            <img id="enhancedPreview" src="" alt="Enhanced image">
+                        </div>
+                    </div>
+
+                    <div class="result-meta">
+                        <div class="meta-chip">
+                            <div class="meta-label">Original size</div>
+                            <div class="meta-val" id="origSize">-</div>
+                        </div>
+
+                        <div class="meta-chip">
+                            <div class="meta-label">Enhanced size</div>
+                            <div class="meta-val" id="enhSize">-</div>
+                        </div>
+
+                        <div class="meta-chip">
+                            <div class="meta-label">Scale</div>
+                            <div class="meta-val" id="scaleResult">-</div>
+                        </div>
+
+                        <div class="meta-chip metrics-chip" id="metricsChip" style="display:none;">
+                            <div class="meta-label">Quality Metrics</div>
+                            <div class="metrics-label" id="metricsVal">-</div>
+                        </div>
+                    </div>
+
+                    <div class="meta-stack">
+                        <div class="prompt-card">
+                            <div class="prompt-card-title">Style preset</div>
+                            <div class="prompt-card-text">
+                                <span class="preset-badge" id="resultPreset">Auto</span>
+                            </div>
+                        </div>
+
+                        <div class="prompt-card">
+                            <div class="prompt-card-title">Applied prompt</div>
+                            <div class="prompt-card-text" id="resultPrompt">No prompt used.</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button class="btn btn-primary" onclick="downloadResult()">Download Image</button>
+                        <button class="btn btn-ghost" onclick="resetAll()">Enhance Another</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent" id="recent">
+            <div class="recent-title">Recent results</div>
+            <div class="recent-grid" id="recentGrid">
+                <div style="color:var(--muted);font-size:.85rem;grid-column:1/-1;text-align:center;padding:20px">
+                    Your recent enhancements will appear here
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let isBatchMode = false;
+        let selectedFiles = [];
+        let currentScale = 4;
+        let currentJobId = null;
+        let currentBatchId = null;
+        let pollTimer = null;
+        let recentJobs = [];
+
+        function byId(id) {
+            return document.getElementById(id);
+        }
+
+        function getPromptValue() {
+            return byId("promptInput").value.trim();
+        }
+
+        function getStylePreset() {
+            return byId("stylePreset").value;
+        }
+
+        function applyPromptChip(text) {
+            byId("promptInput").value = text;
+        }
+
+        function openFilePicker() {
+            console.log('openFilePicker called, isBatchMode:', isBatchMode);
+            if (isBatchMode) {
+                byId("batchFileInput").click();
+            } else {
+                byId("fileInput").click();
+            }
+        }
+
+        function setBatchMode(batch) {
+            console.log('setBatchMode called with:', batch);
+            isBatchMode = batch;
+            byId('btnSingle').classList.toggle('active', !batch);
+            byId('btnBatch').classList.toggle('active', batch);
+            resetUpload();
+            updateUploadUI();
+        }
+
+        function updateUploadUI() {
+            console.log('updateUploadUI called, isBatchMode:', isBatchMode);
+            const dropzone = byId('dropzone');
+
+            if (isBatchMode) {
+                dropzone.innerHTML = `
+                    <div class="upload-icon">BATCH</div>
+                    <div class="drop-title">Drag multiple images or click</div>
+                    <div class="drop-sub">JPG, PNG, WEBP • Max 10 files, 20MB each</div>
+                `;
+                byId('fileRow').classList.add('hidden');
+                byId('filesList').classList.toggle('hidden', selectedFiles.length === 0);
+            } else {
+                dropzone.innerHTML = `
+                    <div class="upload-icon">UP</div>
+                    <div class="drop-title">Click to upload or drag an image here</div>
+                    <div class="drop-sub">Supported formats: JPG, PNG, WEBP • Max file size: 20 MB</div>
+                `;
+                byId('filesList').classList.add('hidden');
+                if (selectedFile) {
+                    byId('fileRow').classList.remove('hidden');
+                }
+            }
+
+            byId('enhanceBtn').disabled = isBatchMode ? selectedFiles.length === 0 : !selectedFile;
+            byId('enhanceBtn').textContent = isBatchMode ?
+                `Enhance ${selectedFiles.length || 0} images` :
+                'Enhance Image';
+        }
+
+        function setScale(scale) {
+            console.log('setScale called with:', scale);
+            currentScale = scale;
+            byId("btn2x").classList.toggle("active", scale === 2);
+            byId("btn4x").classList.toggle("active", scale === 4);
+        }
+
+        function onDragOver(event) {
+            event.preventDefault();
+            byId("dropzone").classList.add("drag-over");
+        }
+
+        function onDragLeave() {
+            byId("dropzone").classList.remove("drag-over");
+        }
+
+        function onDrop(event) {
+            event.preventDefault();
+            onDragLeave();
+
+            const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith("image/"));
+
+            if (isBatchMode) {
+                selectedFiles = files.filter(f => f.size < 20 * 1024 * 1024).slice(0, 10);
+                renderFilesList();
+                updateUploadUI();
+            } else {
+                const file = files[0];
+                if (file) {
+                    loadFile(file);
+                }
+            }
+        }
+
+        function onFileSelect(event) {
+            const file = event.target.files[0];
+            if (file && !isBatchMode) {
+                loadFile(file);
+            }
+        }
+
+        function onBatchFileSelect(event) {
+            selectedFiles = Array.from(event.target.files)
+                .filter(f => f.type.startsWith('image/') && f.size < 20 * 1024 * 1024);
+
+            if (selectedFiles.length > 10) {
+                alert('Max 10 files');
+                selectedFiles = selectedFiles.slice(0, 10);
+            }
+
+            renderFilesList();
+            updateUploadUI();
+        }
+
+        function loadFile(file) {
+            selectedFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                byId("fileThumb").src = e.target.result;
+                byId("originalPreview").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            byId("fileName").textContent = file.name;
+            byId("fileSize").textContent = (file.size / 1024 / 1024).toFixed(2) + " MB";
+            byId("fileRow").classList.remove("hidden");
+            updateUploadUI();
+        }
+
+        function renderFilesList() {
+            const list = byId('filesList');
+
+            if (selectedFiles.length === 0) {
+                list.classList.add('hidden');
+                return;
+            }
+
+            list.innerHTML = selectedFiles.map((file, i) => {
+                const tempUrl = URL.createObjectURL(file);
+                return `
+                    <div class="multi-file-row">
+                        <img class="multi-file-thumb" src="${tempUrl}" alt="${file.name}" onload="URL.revokeObjectURL(this.src)">
+                        <div>
+                            <div class="file-name" style="font-size: 0.85rem; max-width: 200px;">${file.name}</div>
+                            <div class="file-size" style="font-size: 0.75rem;">${(file.size / 1024 / 1024).toFixed(1)} MB</div>
+                        </div>
+                        <button class="remove-file" onclick="removeFile(${i}); return false;" title="Remove">×</button>
+                    </div>
+                `;
+            }).join('');
+
+            list.classList.remove('hidden');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderFilesList();
+            updateUploadUI();
+        }
+
+        function resetUpload() {
+            selectedFile = null;
+            selectedFiles = [];
+            byId("fileInput").value = "";
+            byId("batchFileInput").value = "";
+            byId("fileRow").classList.add("hidden");
+            byId("filesList").innerHTML = '';
+            byId("filesList").classList.add("hidden");
+            updateUploadUI();
+        }
+
+        function resetAll() {
+            resetUpload();
+            showView("viewUpload");
+            currentJobId = null;
+            currentBatchId = null;
+            setProgress(0, "Preparing enhancement workflow...");
+            byId("batchProgress").classList.add("hidden");
+            byId("batchFilesProgress").innerHTML = "";
+            byId("resultPrompt").textContent = "No prompt used.";
+            byId("resultPreset").textContent = "Auto";
+
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+        }
+
+        function showView(viewId) {
+            const views = ["viewUpload", "viewProcessing", "viewResult"];
+            views.forEach(id => {
+                byId(id).classList.toggle("hidden", id !== viewId);
+            });
+        }
+
+        async function startEnhance() {
+            console.log('startEnhance called, isBatchMode:', isBatchMode, 'currentScale:', currentScale);
+            console.log('selectedFile:', !!selectedFile, 'selectedFiles.length:', selectedFiles.length);
+            if (isBatchMode) {
+                if (selectedFiles.length === 0) return;
+            } else {
+                if (!selectedFile) return;
+            }
+
+            showView("viewProcessing");
+            byId("batchProgress").classList.add("hidden");
+            byId("batchFilesProgress").innerHTML = "";
+            setProgress(0, "Starting...");
+            setProgress(5, "Uploading...");
+
+            const prompt = getPromptValue();
+            const stylePreset = getStylePreset();
+            console.log('prompt:', prompt, 'stylePreset:', stylePreset);
+
+            byId("progressTitle").textContent = isBatchMode ? "Processing batch" : "Processing image";
+
+            const formData = new FormData();
+            formData.append("scale", currentScale);
+            formData.append("prompt", prompt);
+            formData.append("style_preset", stylePreset);
+            console.log('FormData fields added');
+
+            if (isBatchMode) {
+                for (const file of selectedFiles) {
+                    formData.append("files", file);
+                    console.log('Appended batch file:', file.name, file.size);
+                }
+
+                try {
+                    console.log('Sending to /api/enhance-batch');
+                    const response = await fetch("/api/enhance-batch", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    console.log('Batch response:', data, 'status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(data.detail || "Batch failed");
+                    }
+
+                    if (data.batch_id) {
+                        currentBatchId = data.batch_id;
+                        setProgress(10, "Queued...");
+                        pollBatch();
+                    } else {
+                        throw new Error(data.detail || "Batch failed");
+                    }
+                } catch (e) {
+                    console.error('Batch error:', e);
+                    alert("Batch upload failed: " + e.message);
+                    showView("viewUpload");
+                }
+            } else {
+                formData.append("file", selectedFile);
+                console.log('Appended single file:', selectedFile.name, selectedFile.size);
+
+                try {
+                    console.log('Sending to /api/enhance');
+                    const response = await fetch("/api/enhance", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    console.log('Single response:', data, 'status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(data.detail || "Single failed");
+                    }
+
+                    if (data.job_id) {
+                        currentJobId = data.job_id;
+                        setProgress(10, "Queued...");
+                        pollJob();
+                    } else {
+                        throw new Error(data.detail || "Single failed");
+                    }
+                } catch (e) {
+                    console.error('Single error:', e);
+                    alert("Upload failed: " + e.message);
+                    showView("viewUpload");
+                }
+            }
+        }
+
+        function pollJob() {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+            }
+
+            pollTimer = setInterval(async() => {
+                try {
+                    const response = await fetch(`/api/job/${currentJobId}`);
+                    const job = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(job.detail || "Failed to fetch job");
+                    }
+
+                    const safeProgress = Math.max(job.progress || 0, 10);
+                    setProgress(safeProgress, getStatusMessage(safeProgress, job));
+
+                    if (job.status === "done") {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                        setProgress(100, "Done");
+                        await showResult(job, true);
+                    } else if (job.status === "error") {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                        alert("Enhancement failed: " + (job.error || "Unknown error"));
+                        showView("viewUpload");
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, 700);
+        }
+
+        function pollBatch() {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+            }
+
+            pollTimer = setInterval(async() => {
+                try {
+                    const response = await fetch(`/api/batch/${currentBatchId}`);
+                    const batch = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(batch.detail || "Failed to fetch batch");
+                    }
+
+                    const safeProgress = Math.max(batch.progress || 0, 10);
+                    setProgress(safeProgress, `Processing batch (${batch.job_count} files)`);
+                    updateBatchProgress(batch.jobs || []);
+
+                    if (batch.status === "done") {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                        setProgress(100, "Batch complete");
+                        showBatchResult(batch);
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            }, 700);
+        }
+
+        function updateBatchProgress(jobs) {
+            const container = byId('batchFilesProgress');
+
+            container.innerHTML = jobs.map(job => `
+                <div class="batch-file-item">
+                    <div class="batch-file-name">${job.filename || "image"}</div>
+                    <div class="batch-file-bar">
+                        <div class="batch-file-fill" style="width: ${Math.round(job.progress || 0)}%;"></div>
+                    </div>
+                    <small style="color: var(--muted);">${Math.round(job.progress || 0)}%</small>
+                </div>
+            `).join('');
+
+            byId('batchProgress').classList.remove('hidden');
+        }
+
+        function getStatusMessage(progress, job = null) {
+            const preset = job && job.style_preset ? ` (${job.style_preset})` : "";
+
+            if (progress < 25) return "Uploading and preparing image...";
+            if (progress < 50) return `Upscaling image to ${currentScale}x${preset}...`;
+            if (progress < 80) return "Applying prompt-guided enhancement...";
+            if (progress < 100) return "Finalizing output...";
+            return "Done";
+        }
+
+        function setProgress(percent, message) {
+            byId("ringLabel").textContent = `${Math.round(percent)}%`;
+            byId("progressSub").textContent = message || "";
+            byId("progressBarFill").style.width = `${percent}%`;
+
+            const circumference = 2 * Math.PI * 54;
+            const offset = circumference - (percent / 100) * circumference;
+            byId("ringProgress").style.strokeDashoffset = offset;
+        }
+
+        async function showResult(job, shouldAddToRecent = false) {
+            try {
+                const response = await fetch(`/api/preview/${currentJobId}`);
+                const data = await response.json();
+
+                if (response.ok && data.image) {
+                    byId("enhancedPreview").src = data.image;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+
+            byId("origSize").textContent = job.original_size ?
+                `${job.original_size[0]} x ${job.original_size[1]}` :
+                "-";
+
+            byId("enhSize").textContent = job.enhanced_size ?
+                `${job.enhanced_size[0]} x ${job.enhanced_size[1]}` :
+                "-";
+
+            byId("scaleResult").textContent = `${job.scale}x`;
+            byId("resultLabel").textContent = `${job.scale}x Enhanced`;
+
+            byId("resultPreset").textContent = (job.style_preset || "auto").toUpperCase();
+            byId("resultPrompt").textContent = job.prompt && job.prompt.trim() ?
+                job.prompt :
+                "No prompt used.";
+
+            if (job.metrics && Object.keys(job.metrics).length > 0) {
+                byId("metricsChip").style.display = "block";
+                const metricsText = Object.entries(job.metrics)
+                    .map(([k, v]) => `${k}: ${typeof v === "number" ? v.toFixed(2) : v}`)
+                    .join(" • ");
+                byId("metricsVal").textContent = metricsText;
+            } else {
+                byId("metricsChip").style.display = "none";
+            }
+
+            showView("viewResult");
+
+            if (shouldAddToRecent) {
+                addToRecent(job);
+            }
+        }
+
+        function showBatchResult(batch) {
+            const zipReady = !!batch.zip_path;
+            alert(zipReady ?
+                "Batch processing complete. Your ZIP is ready from the batch download endpoint." :
+                "Batch processing complete.");
+            resetAll();
+        }
+
+        function downloadResult() {
+            if (currentJobId) {
+                window.open(`/api/download/${currentJobId}`, "_blank");
+            }
+        }
+
+        function addToRecent(job) {
+            recentJobs = recentJobs.filter(item => item.jobId !== currentJobId);
+
+            recentJobs.unshift({
+                jobId: currentJobId,
+                ...job,
+                ts: Date.now()
+            });
+
+            recentJobs = recentJobs.slice(0, 6);
+            renderRecent();
+        }
+
+        function renderRecent() {
+            const grid = byId("recentGrid");
+
+            if (!recentJobs.length) {
+                grid.innerHTML = `
+                    <div style="color:var(--muted);font-size:.85rem;grid-column:1/-1;text-align:center;padding:20px">
+                        Your recent enhancements will appear here
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = recentJobs.map(job => `
+                <div class="recent-item" onclick="viewRecent('${job.jobId}')">
+                    <div class="recent-thumb">IMG</div>
+                    <div style="min-width:0">
+                        <div class="recent-name">${job.filename || "image.png"}</div>
+                        <div>
+                            <span class="scale-badge">${job.scale}X</span>
+                            <span class="preset-mini">${(job.style_preset || "auto").toUpperCase()}</span>
+                            <span class="recent-time">${timeAgo(job.ts)}</span>
+                        </div>
+                    </div>
+                    <div class="status-dot"></div>
+                </div>
+            `).join("");
+        }
+
+        function timeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+
+            if (seconds < 60) return "just now";
+            if (seconds < 3600) return Math.floor(seconds / 60) + "m ago";
+            return Math.floor(seconds / 3600) + "h ago";
+        }
+
+        async function viewRecent(jobId) {
+            currentJobId = jobId;
+
+            try {
+                const response = await fetch(`/api/job/${jobId}`);
+                const job = await response.json();
+
+                if (response.ok) {
+                    await showResult(job, false);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        setInterval(() => {
+            if (recentJobs.length) {
+                renderRecent();
+            }
+        }, 30000);
+
+        updateUploadUI();
+        setScale(4);
+        setProgress(0, "Preparing enhancement workflow...");
+    </script>
+</body>
+
+</html>
